@@ -1,18 +1,20 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const adminRoutes = require('./routes/adminRoutes');
+const jobRoutes = require('./routes/jobRoutes');
+const applicationRoutes = require('./routes/applicationRoutes');
+const path = require('path');
+
+require('dotenv').config();
+
 const app = express();
 
-// Middleware
-app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
+app.use(cors());
 app.use(express.json());
 
-// DB connection
-require('./config/db');
-
-// Test route
-app.get('/api/test', (req, res) => {
-  res.json({ message: '✅ Backend is connected and running!' });
-});
+app.use('/api/admin', adminRoutes);
+app.use('/api/jobs', jobRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // serve files
+app.use('/api/applications', applicationRoutes);
 
 module.exports = app;

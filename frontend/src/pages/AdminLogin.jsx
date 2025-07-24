@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/data/translations';
 import { toast } from '@/components/ui/use-toast';
+import axios from 'axios';
 
 const AdminLogin = () => {
   const { language } = useLanguage();
@@ -17,19 +18,32 @@ const AdminLogin = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (username === 'admin' && password === 'admin123') {
-      localStorage.setItem('isAdminAuthenticated', 'true');
-      navigate('/admin/dashboard');
-    } else {
-      toast({
-        title: 'Invalid credentials',
-        description: 'Please check your username and password.',
-        variant: 'destructive',
-      });
-    }
-  };
+ const handleLogin = async (e) => {
+  e.preventDefault();
+
+  try {
+    const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/admin/login`, {
+      email: username,
+      password,
+    });
+
+    const { token, admin } = response.data;
+
+    // Save token in localStorage
+    localStorage.setItem('adminToken', token);
+    localStorage.setItem('adminInfo', JSON.stringify(admin));
+    localStorage.setItem('isAdminAuthenticated', 'true');
+
+    navigate('/admin/dashboard');
+  } catch (error) {
+    toast({
+      title: 'Login Failed',
+      description: error.response?.data?.message || 'Invalid credentials',
+      variant: 'destructive',
+    });
+  }
+};
+
 
   return (
     <>

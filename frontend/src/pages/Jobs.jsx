@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { MapPin, Briefcase, Search, FileText, UserCheck, Rocket } from 'lucide-react';
@@ -11,16 +11,28 @@ import { Label } from '@/components/ui/label';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/data/translations';
-import { jobsData } from '@/data/jobs';
 import { Link } from 'react-router-dom';
 
 const JOBS_PER_PAGE = 6;
 
 const Jobs = () => {
   const { language } = useLanguage();
+  const [allJobs, setAllJobs] = useState([]);
   const t = translations[language];
-  
-  const allJobs = useMemo(() => jobsData[language], [language]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/jobs`);
+        const data = await res.json();
+        setAllJobs(data);
+      } catch (err) {
+        console.error('Error loading jobs:', err);
+      }
+    };
+
+    fetchJobs();
+  }, []);
 
   const [filters, setFilters] = useState({
     keyword: '',
@@ -46,9 +58,10 @@ const Jobs = () => {
 
   const filteredJobs = useMemo(() => {
     return allJobs.filter(job => {
-      const keywordMatch = job.title.toLowerCase().includes(filters.keyword.toLowerCase()) || job.summary.toLowerCase().includes(filters.keyword.toLowerCase());
+      const keywordMatch = job.title.toLowerCase().includes(filters.keyword.toLowerCase()) || 
+                          (job.description && job.description.toLowerCase().includes(filters.keyword.toLowerCase()));
       const locationMatch = filters.location === 'all' || job.location === filters.location;
-      const typeMatch = filters.types.length === 0 || filters.types.includes(job.type);
+      const typeMatch = filters.types.length === 0 || filters.types.includes(job.job_type);
       return keywordMatch && locationMatch && typeMatch;
     });
   }, [filters, allJobs]);
@@ -77,6 +90,18 @@ const Jobs = () => {
     { q: t.jobsFaq4Q, a: t.jobsFaq4A },
     { q: t.jobsFaq5Q, a: t.jobsFaq5A },
   ];
+
+  // Helper function to create job slug
+  const createJobSlug = (title, jobId) => {
+    return `${title.toLowerCase().replace(/\s+/g, '-')}-${jobId}`;
+  };
+
+  // Helper function to get job summary from description
+  const getJobSummary = (description) => {
+    if (!description) return '';
+    const sentences = description.split('. ');
+    return sentences[0] + (sentences.length > 1 ? '.' : '');
+  };
 
   return (
     <>
@@ -155,7 +180,7 @@ const Jobs = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {paginatedJobs.map((job, index) => (
                     <motion.div
-                      key={job.id}
+                      key={job.job_id}
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.5, delay: index * 0.05 }}
@@ -164,18 +189,22 @@ const Jobs = () => {
                         <CardHeader>
                           <CardTitle className="text-xl">{job.title}</CardTitle>
                           <CardDescription className="pt-2">
-                            <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">{job.type}</span>
+                            <span className="inline-block bg-blue-100 text-blue-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">{job.job_type}</span>
                           </CardDescription>
                           <div className="flex items-center text-sm text-gray-500 pt-2">
                             <MapPin className="h-4 w-4 mr-1" /> {job.location}
                           </div>
                         </CardHeader>
                         <CardContent className="flex-grow">
-                          <p className="text-gray-600 line-clamp-3">{job.summary}</p>
+                          <p className="text-gray-600 line-clamp-3">{getJobSummary(job.description)}</p>
                         </CardContent>
                         <CardFooter className="flex justify-between">
-                          <Link to={`/jobs/${job.slug}`}><Button variant="outline">{t.viewDetails}</Button></Link>
-                          <Link to={`/apply/${job.id}`} state={{ jobId: job.id }}><Button>{t.applyNow}</Button></Link>
+                          <Link to={`/jobs/${job.job_id}`}>
+                            <Button variant="outline">{t.viewDetails}</Button>
+                          </Link>
+                          <Link to={`/apply/${job.job_id}`} state={{ jobId: job.job_id }}>
+                            <Button>{t.applyNow}</Button>
+                          </Link>
                         </CardFooter>
                       </Card>
                     </motion.div>

@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/data/translations';
-import { jobsData } from '@/data/jobs';
 import { toast } from '@/components/ui/use-toast';
 import { useParams, Link, useLocation } from 'react-router-dom';
 
@@ -19,12 +18,13 @@ const Apply = () => {
   const t = translations[language];
   const { jobId } = useParams();
   const location = useLocation();
-  const allJobs = jobsData[language];
   
   const preselectedJobId = location.state?.jobId || jobId;
 
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [selectedJob, setSelectedJob] = useState(preselectedJobId || '');
+  const [allJobs, setAllJobs] = useState([]);
+  const [currentJob, setCurrentJob] = useState(null);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -33,9 +33,29 @@ const Apply = () => {
     cv: null,
   });
 
+  // Fetch jobs from API
   useEffect(() => {
-    setSelectedJob(preselectedJobId || '');
-  }, [preselectedJobId]);
+    const fetchJobs = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/jobs`);
+        const data = await res.json();
+        setAllJobs(data);
+      } catch (err) {
+        console.error('Error loading jobs:', err);
+      }
+    };
+
+    fetchJobs();
+  }, []);
+
+  // Set selected job and find current job details
+  useEffect(() => {
+    if (preselectedJobId && allJobs.length > 0) {
+      setSelectedJob(preselectedJobId);
+      const job = allJobs.find(j => j.job_id.toString() === preselectedJobId.toString());
+      setCurrentJob(job);
+    }
+  }, [preselectedJobId, allJobs]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -47,50 +67,107 @@ const Apply = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.type === 'application/pdf') {
-      setFormData(prev => ({ ...prev, cv: file }));
-    } else {
+    
+    if (!file) return;
+    
+    // Check file type
+    if (file.type !== 'application/pdf') {
       toast({
         title: "Please upload a PDF file only",
         variant: "destructive",
         duration: 3000,
       });
       e.target.value = null;
+      return;
     }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
     
-    if (!formData.fullName || !formData.email || !selectedJob || !formData.cv) {
+    // Check file size (2MB limit)
+    if (file.size > 2 * 1024 * 1024) {
       toast({
-        title: "Please fill in all required fields and upload your CV.",
+        title: "File too large. Maximum size is 2MB.",
         variant: "destructive",
         duration: 3000,
+      });
+      e.target.value = null;
+      return;
+    }
+    
+    setFormData(prev => ({ ...prev, cv: file }));
+  };
+
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!formData.fullName || !formData.email || !selectedJob || !formData.cv) {
+    toast({
+      title: "Please fill in all required fields and upload your CV.",
+      variant: "destructive",
+      duration: 3000,
+    });
+    return;
+  }
+
+  try {
+    // Step 1: Check for duplicate before uploading file
+    const checkRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/applications/check-duplicate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        job_id: selectedJob,
+        email: formData.email
+      })
+    });
+
+    const checkData = await checkRes.json();
+
+    if (checkData.alreadyApplied) {
+      toast({
+        title: "Already Applied",
+        description: "You’ve already submitted an application for this job.",
+        variant: "destructive",
+        duration: 4000,
       });
       return;
     }
 
-    const applications = JSON.parse(localStorage.getItem('applications') || '[]');
-    const newApplication = {
-      id: Date.now(),
-      jobId: selectedJob,
-      jobTitle: allJobs.find(j => j.id.toString() === selectedJob)?.title,
-      ...formData,
-      cvName: formData.cv?.name || null,
-      submittedAt: new Date().toISOString()
-    };
-    applications.push(newApplication);
-    localStorage.setItem('applications', JSON.stringify(applications));
+    // Step 2: Proceed with full submission (including CV)
+    const submitData = new FormData();
+    submitData.append('job_id', selectedJob);
+    submitData.append('full_name', formData.fullName);
+    submitData.append('email', formData.email);
+    submitData.append('phone', formData.phone);
+    submitData.append('cover_letter', formData.coverLetter);
+    submitData.append('cv', formData.cv);
+
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/applications`, {
+      method: 'POST',
+      body: submitData,
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to submit application');
+    }
 
     setIsSubmitted(true);
     toast({
-      title: t.applicationSuccess,
+      title: "Application submitted successfully!",
+      description: "We'll review your application and get back to you soon.",
       duration: 5000,
     });
-  };
 
-  const currentJobTitle = allJobs.find(j => j.id.toString() === selectedJob)?.title;
+  } catch (error) {
+    console.error('Application submission error:', error);
+    toast({
+      title: "Failed to submit application",
+      description: error.message || "Please try again later.",
+      variant: "destructive",
+      duration: 5000,
+    });
+  }
+};
+
 
   if (isSubmitted) {
     return (
@@ -141,7 +218,11 @@ const Apply = () => {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
               {t.applyNow}
             </h1>
-            {currentJobTitle && <p className="text-lg text-gray-600">{t.applyFor}: <span className="font-semibold text-blue-700">{currentJobTitle}</span></p>}
+            {/* {currentJob && (
+              <p className="text-lg text-gray-600">
+                {t.applyFor}: <span className="font-semibold text-blue-700">{currentJob.title}</span>
+              </p>
+            )} */}
           </motion.div>
 
           <motion.div
@@ -160,49 +241,109 @@ const Apply = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <Label htmlFor="jobId">{t.selectJob} *</Label>
-                    <Select value={selectedJob} onValueChange={setSelectedJob} required>
-                      <SelectTrigger id="jobId" className="w-full mt-1">
-                        <SelectValue placeholder={t.selectJob} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {allJobs.length > 0 ? (
-                          allJobs.map(job => (
-                            <SelectItem key={job.id} value={job.id.toString()}>{job.title} - {job.location}</SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem value="no-jobs" disabled>{t.noJobsAvailable}</SelectItem>
-                        )}
-                      </SelectContent>
-                    </Select>
+                    {preselectedJobId && currentJob ? (
+                      // If coming from a specific job, show it as disabled/read-only
+                      <div className="mt-1">
+                        <Input 
+                          value={`${currentJob.title} - ${currentJob.location}`}
+                          disabled
+                          className="bg-gray-50 text-gray-700"
+                        />
+                        <p className="text-sm text-gray-500 mt-1">
+                          Job preselected. <Link to="/apply" className="text-blue-600 hover:underline">Change job?</Link>
+                        </p>
+                      </div>
+                    ) : (
+                      // If coming from general apply page, show dropdown
+                      <Select value={selectedJob} onValueChange={setSelectedJob} required>
+                        <SelectTrigger id="jobId" className="w-full mt-1">
+                          <SelectValue placeholder={t.selectJob} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allJobs.length > 0 ? (
+                            allJobs.map(job => (
+                              <SelectItem key={job.job_id} value={job.job_id.toString()}>
+                                {job.title} - {job.location}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem value="no-jobs" disabled>{t.noJobsAvailable}</SelectItem>
+                          )}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="fullName">{t.fullName} *</Label>
-                      <Input id="fullName" name="fullName" type="text" required value={formData.fullName} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="fullName" 
+                        name="fullName" 
+                        type="text" 
+                        required 
+                        value={formData.fullName} 
+                        onChange={handleInputChange} 
+                        className="mt-1" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="email">{t.email} *</Label>
-                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        required 
+                        value={formData.email} 
+                        onChange={handleInputChange} 
+                        className="mt-1" 
+                      />
                     </div>
                   </div>
 
                   <div>
-                      <Label htmlFor="phone">{t.phoneNumber}</Label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="mt-1" />
+                    <Label htmlFor="phone">{t.phoneNumber}</Label>
+                    <Input 
+                      id="phone" 
+                      name="phone" 
+                      type="tel" 
+                      value={formData.phone} 
+                      onChange={handleInputChange} 
+                      className="mt-1" 
+                    />
                   </div>
 
                   <div>
                     <Label htmlFor="cv">{t.uploadCVLabel} *</Label>
                     <div className="mt-1">
-                      <Input id="cv" name="cv" type="file" accept=".pdf" required onChange={handleFileChange} />
-                      {formData.cv && (<p className="text-sm text-blue-600 mt-2">Selected: {formData.cv.name}</p>)}
+                      <Input 
+                        id="cv" 
+                        name="cv" 
+                        type="file" 
+                        accept=".pdf" 
+                        required 
+                        onChange={handleFileChange} 
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        PDF files only, maximum 2MB
+                      </p>
+                      {formData.cv && (
+                        <p className="text-sm text-blue-600 mt-2">Selected: {formData.cv.name}</p>
+                      )}
                     </div>
                   </div>
 
                   <div>
                     <Label htmlFor="coverLetter">{t.coverLetter}</Label>
-                    <Textarea id="coverLetter" name="coverLetter" rows={5} value={formData.coverLetter} onChange={handleInputChange} className="mt-1" placeholder="Tell us about your experience, availability, or why you're a great fit..." />
+                    <Textarea 
+                      id="coverLetter" 
+                      name="coverLetter" 
+                      rows={5} 
+                      value={formData.coverLetter} 
+                      onChange={handleInputChange} 
+                      className="mt-1" 
+                      placeholder="Tell us about your experience, availability, or why you're a great fit..." 
+                    />
                   </div>
 
                   <Button type="submit" className="w-full" size="lg">

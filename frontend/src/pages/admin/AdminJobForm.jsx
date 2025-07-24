@@ -10,7 +10,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/components/ui/use-toast';
 import { ArrowLeft } from 'lucide-react';
-import { jobsData as initialJobs } from '@/data/jobs';
 
 const AdminJobForm = () => {
   const navigate = useNavigate();
@@ -29,63 +28,91 @@ const AdminJobForm = () => {
     deadline: '',
   });
 
+  // Helper function to format date for input fields
+  const formatDateForInput = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-CA'); // Returns YYYY-MM-DD format
+  };
+
   useEffect(() => {
     if (isEditing) {
-      const allJobs = [...initialJobs.en, ...JSON.parse(localStorage.getItem('jobs') || '[]')];
-      const jobToEdit = allJobs.find(job => job.id.toString() === jobId);
-      if (jobToEdit) {
-        setFormData({
-          title: jobToEdit.title,
-          location: jobToEdit.location,
-          type: jobToEdit.type,
-          description: jobToEdit.description,
-          responsibilities: Array.isArray(jobToEdit.responsibilities) ? jobToEdit.responsibilities.join('\n') : '',
-          qualifications: Array.isArray(jobToEdit.qualifications) ? jobToEdit.qualifications.join('\n') : '',
-          postedDate: jobToEdit.postedDate,
-          deadline: jobToEdit.deadline,
+      fetch(`${import.meta.env.VITE_API_BASE_URL}/jobs/${jobId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setFormData({
+            title: data.title || '',
+            location: data.location || '',
+            type: data.job_type || '',
+            description: data.description || '',
+            responsibilities: Array.isArray(data.responsibilities) ? data.responsibilities.join('\n') : '',
+            qualifications: Array.isArray(data.qualifications) ? data.qualifications.join('\n') : '',
+            postedDate: formatDateForInput(data.posting_date),
+            deadline: formatDateForInput(data.application_deadline),
+          });
+        })
+        .catch((err) => {
+          toast({
+            title: 'Failed to load job',
+            description: err.message || 'Something went wrong.',
+            variant: 'destructive',
+          });
         });
-      }
     }
-  }, [jobId, isEditing]);
+  }, [jobId, isEditing, toast]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSelectChange = (name, value) => {
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    const newJob = {
-      ...formData,
-      id: isEditing ? parseInt(jobId) : Date.now(),
-      slug: formData.title.toLowerCase().replace(/\s+/g, '-') + '-' + formData.location.toLowerCase(),
-      summary: formData.description.split('. ')[0] + '.',
-      responsibilities: formData.responsibilities.split('\n').filter(line => line.trim() !== ''),
-      qualifications: formData.qualifications.split('\n').filter(line => line.trim() !== ''),
+
+    const payload = {
+      title: formData.title,
+      location: formData.location,
+      job_type: formData.type,
+      description: formData.description,
+      responsibilities: formData.responsibilities.split('\n').filter((line) => line.trim() !== ''),
+      qualifications: formData.qualifications.split('\n').filter((line) => line.trim() !== ''),
+      posting_date: formData.postedDate,
+      application_deadline: formData.deadline,
     };
 
-    const storedJobs = JSON.parse(localStorage.getItem('jobs') || '[]');
-    let updatedJobs;
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/jobs${isEditing ? `/${jobId}` : ''}`,
+        {
+          method: isEditing ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
-    if (isEditing) {
-      updatedJobs = storedJobs.map(job => job.id.toString() === jobId ? newJob : job);
-    } else {
-      updatedJobs = [...storedJobs, newJob];
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || 'Server error');
+
+      toast({
+        title: `Job ${isEditing ? 'Updated' : 'Created'} Successfully`,
+        description: `The job "${formData.title}" has been saved.`,
+      });
+
+      navigate('/admin/jobs');
+    } catch (err) {
+      toast({
+        title: `Failed to ${isEditing ? 'update' : 'create'} job`,
+        description: err.message,
+        variant: 'destructive',
+      });
     }
-
-    localStorage.setItem('jobs', JSON.stringify(updatedJobs));
-
-    toast({
-      title: `Job ${isEditing ? 'Updated' : 'Created'} Successfully`,
-      description: `The job "${newJob.title}" has been saved.`,
-    });
-
-    navigate('/admin/jobs');
   };
 
   return (
@@ -127,7 +154,12 @@ const AdminJobForm = () => {
 
               <div>
                 <Label htmlFor="type">Job Type</Label>
-                <Select name="type" value={formData.type} onValueChange={(value) => handleSelectChange('type', value)} required>
+                <Select
+                  name="type"
+                  value={formData.type}
+                  onValueChange={(value) => handleSelectChange('type', value)}
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Select job type" />
                   </SelectTrigger>
@@ -142,27 +174,60 @@ const AdminJobForm = () => {
 
               <div>
                 <Label htmlFor="description">Full Description</Label>
-                <Textarea id="description" name="description" rows={5} value={formData.description} onChange={handleInputChange} required />
+                <Textarea
+                  id="description"
+                  name="description"
+                  rows={5}
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
 
               <div>
                 <Label htmlFor="responsibilities">Key Responsibilities (one per line)</Label>
-                <Textarea id="responsibilities" name="responsibilities" rows={5} value={formData.responsibilities} onChange={handleInputChange} />
+                <Textarea
+                  id="responsibilities"
+                  name="responsibilities"
+                  rows={5}
+                  value={formData.responsibilities}
+                  onChange={handleInputChange}
+                />
               </div>
 
               <div>
                 <Label htmlFor="qualifications">Requirements / Qualifications (one per line)</Label>
-                <Textarea id="qualifications" name="qualifications" rows={5} value={formData.qualifications} onChange={handleInputChange} />
+                <Textarea
+                  id="qualifications"
+                  name="qualifications"
+                  rows={5}
+                  value={formData.qualifications}
+                  onChange={handleInputChange}
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="postedDate">Posting Date</Label>
-                  <Input id="postedDate" name="postedDate" type="date" value={formData.postedDate} onChange={handleInputChange} required />
+                  <Input
+                    id="postedDate"
+                    name="postedDate"
+                    type="date"
+                    value={formData.postedDate}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
                 <div>
                   <Label htmlFor="deadline">Application Deadline</Label>
-                  <Input id="deadline" name="deadline" type="date" value={formData.deadline} onChange={handleInputChange} required />
+                  <Input
+                    id="deadline"
+                    name="deadline"
+                    type="date"
+                    value={formData.deadline}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
               </div>
 

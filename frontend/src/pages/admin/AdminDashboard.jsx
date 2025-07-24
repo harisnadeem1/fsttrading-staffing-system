@@ -4,6 +4,9 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, FileText, Users, Calendar } from 'lucide-react';
 import { jobsData as initialJobs } from '@/data/jobs';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/use-toast';
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({
@@ -12,6 +15,16 @@ const AdminDashboard = () => {
     totalRequests: 0,
     lastJobDate: null,
   });
+
+  const [adminInfo, setAdminInfo] = useState(null);
+const [newAdmin, setNewAdmin] = useState({ name: '', email: '', password: '' });
+
+useEffect(() => {
+  const storedAdmin = JSON.parse(localStorage.getItem('adminInfo'));
+  setAdminInfo(storedAdmin);
+}, []);
+
+  
 
   useEffect(() => {
     const storedJobs = JSON.parse(localStorage.getItem('jobs') || '[]');
@@ -77,6 +90,61 @@ const AdminDashboard = () => {
               </Card>
             </motion.div>
           ))}
+
+
+          {adminInfo?.role === 'super_admin' && (
+  <div className="mt-10">
+    <h2 className="text-xl font-semibold mb-4">Create New Admin</h2>
+    <form
+      onSubmit={async (e) => {
+        e.preventDefault();
+        try {
+          const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/admin/create`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: localStorage.getItem('adminToken'),
+            },
+            body: JSON.stringify(newAdmin),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) throw new Error(data.message);
+
+          toast({ title: 'Admin Created', description: data.message });
+          setNewAdmin({ name: '', email: '', password: '' });
+        } catch (err) {
+          toast({ title: 'Error', description: err.message, variant: 'destructive' });
+        }
+      }}
+      className="space-y-4 max-w-md"
+    >
+      <Input
+        placeholder="Name"
+        value={newAdmin.name}
+        onChange={(e) => setNewAdmin({ ...newAdmin, name: e.target.value })}
+        required
+      />
+      <Input
+        placeholder="Email"
+        type="email"
+        value={newAdmin.email}
+        onChange={(e) => setNewAdmin({ ...newAdmin, email: e.target.value })}
+        required
+      />
+      <Input
+        placeholder="Password"
+        type="password"
+        value={newAdmin.password}
+        onChange={(e) => setNewAdmin({ ...newAdmin, password: e.target.value })}
+        required
+      />
+      <Button type="submit">Create Admin</Button>
+    </form>
+  </div>
+)}
+
         </motion.div>
         <div className="text-center mt-8">
           <p className="text-muted-foreground">Welcome to the F4ast Trading Admin Panel.</p>
