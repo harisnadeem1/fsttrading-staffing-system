@@ -1,42 +1,74 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, User, Mail, Phone, Briefcase, Clock, FileText, Trash2, CheckCircle } from 'lucide-react';
+import { ArrowLeft, User, Mail, Phone, Briefcase, Clock, FileText, Trash2, CheckCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const AdminRequestDetails = () => {
   const { requestId } = useParams();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const [requests, setRequests] = useState(() => JSON.parse(localStorage.getItem('staffRequests') || '[]'));
 
-  const request = useMemo(() => {
-    return requests.find(req => req.id.toString() === requestId);
-  }, [requests, requestId]);
-  
-  const updateRequestStatus = (status) => {
-    const updatedRequests = requests.map(req => 
-      req.id.toString() === requestId ? { ...req, status } : req
-    );
-    setRequests(updatedRequests);
-    localStorage.setItem('staffRequests', JSON.stringify(updatedRequests));
+  const [request, setRequest] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch request from backend
+  useEffect(() => {
+    const fetchRequest = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/requests/${requestId}`);
+        if (!res.ok) throw new Error(`Failed to fetch request`);
+        const data = await res.json();
+        setRequest(data);
+      } catch (err) {
+        console.error(err);
+        setError('Unable to load request.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequest();
+  }, [requestId]);
+
+  const updateStatus = async (status) => {
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/requests/${requestId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error('Failed to update status');
+      setRequest({ ...request, status });
+      toast({ title: `Request marked as ${status}` });
+    } catch (err) {
+      console.error(err);
+      toast({ title: 'Error updating status', variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
+    }
   };
-  
-  const handleFulfill = () => {
-    updateRequestStatus('Fulfilled');
-    toast({ title: "Request Marked as Fulfilled" });
-  };
-  
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this request? This cannot be undone.')) {
-      updateRequestStatus('Deleted');
-      toast({ title: "Request Marked as Deleted", variant: "destructive" });
+
+  const handleDelete = async () => {
+    if (!window.confirm("Are you sure you want to delete this request? This cannot be undone.")) return;
+
+    setSubmitting(true);
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/requests/${requestId}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Delete failed');
+      toast({ title: "Request Deleted", variant: "destructive" });
       navigate('/admin/requests');
+    } catch (err) {
+      console.error(err);
+      toast({ title: "Failed to delete", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -51,10 +83,19 @@ const AdminRequestDetails = () => {
     }
   };
 
-  if (!request) {
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[300px]">
+        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+        <span className="ml-3">Loading request...</span>
+      </div>
+    );
+  }
+
+  if (error || !request) {
     return (
       <div className="text-center p-8">
-        <h1 className="text-2xl font-bold">Request not found</h1>
+        <h1 className="text-2xl font-bold text-red-600">{error || "Request not found"}</h1>
         <Button onClick={() => navigate('/admin/requests')} className="mt-4">Back to Requests</Button>
       </div>
     );
@@ -63,7 +104,7 @@ const AdminRequestDetails = () => {
   return (
     <>
       <Helmet>
-        <title>Admin - Request from {request.companyName}</title>
+        <title>Admin - Request from {request.company_name}</title>
       </Helmet>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -84,8 +125,8 @@ const AdminRequestDetails = () => {
           <CardHeader>
             <div className="flex justify-between items-start">
               <div>
-                <CardTitle className="text-2xl">Request from {request.companyName}</CardTitle>
-                <CardDescription>Submitted on {new Date(request.submittedAt).toLocaleDateString()}</CardDescription>
+                <CardTitle className="text-2xl">Request from {request.company_name}</CardTitle>
+                <CardDescription>Submitted on {new Date(request.submitted_at).toLocaleDateString()}</CardDescription>
               </div>
               <Badge variant={getStatusVariant(request.status)} className="text-base px-4 py-1">{request.status}</Badge>
             </div>
@@ -97,8 +138,8 @@ const AdminRequestDetails = () => {
                   <CardTitle className="flex items-center text-lg"><User className="mr-2 h-5 w-5"/>Contact Information</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <p><strong>Company:</strong><span className="ml-2">{request.companyName}</span></p>
-                  <p><strong>Contact:</strong><span className="ml-2">{request.contactName}</span></p>
+                  <p><strong>Company:</strong><span className="ml-2">{request.company_name}</span></p>
+                  <p><strong>Contact:</strong><span className="ml-2">{request.contact_name}</span></p>
                   <p className="flex items-center"><Mail className="mr-3 h-4 w-4 text-muted-foreground"/>{request.email}</p>
                   <p className="flex items-center"><Phone className="mr-3 h-4 w-4 text-muted-foreground"/>{request.phone || 'N/A'}</p>
                 </CardContent>
@@ -108,31 +149,31 @@ const AdminRequestDetails = () => {
                     <CardTitle className="flex items-center text-lg"><Briefcase className="mr-2 h-5 w-5"/>Request Details</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-3 text-sm">
-                  <p><strong>Service Needed:</strong><span className="ml-2">{request.serviceNeeded}</span></p>
-                  <p><strong>Role Requested:</strong><span className="ml-2">{request.typeOfWorkers}</span></p>
+                  <p><strong>Service Needed:</strong><span className="ml-2">{request.service_needed}</span></p>
+                  <p><strong>Role Requested:</strong><span className="ml-2">{request.worker_type}</span></p>
                   <p className="flex items-center"><Clock className="mr-3 h-4 w-4 text-muted-foreground"/><strong>Duration:</strong><span className="ml-2">{request.duration || 'Not specified'}</span></p>
                 </CardContent>
               </Card>
             </div>
             
             <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center text-lg"><FileText className="mr-2 h-5 w-5"/>Additional Notes</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm text-muted-foreground whitespace-pre-wrap">{request.notes || "No additional notes provided."}</p>
-                </CardContent>
+              <CardHeader>
+                  <CardTitle className="flex items-center text-lg"><FileText className="mr-2 h-5 w-5"/>Additional Notes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-sm text-muted-foreground whitespace-pre-wrap">{request.additional_notes || "No additional notes provided."}</p>
+              </CardContent>
             </Card>
 
             <div className="flex items-center justify-end space-x-4 border-t pt-6">
-               <Button variant="default" onClick={handleFulfill} disabled={request.status !== 'Active'}>
-                 <CheckCircle className="mr-2 h-4 w-4" />
-                 Mark as Fulfilled
-               </Button>
-               <Button variant="destructive" onClick={handleDelete} disabled={request.status === 'Deleted'}>
-                 <Trash2 className="mr-2 h-4 w-4" />
-                 Delete Request
-               </Button>
+              {/* <Button variant="default" onClick={() => updateStatus('Fulfilled')} disabled={request.status !== 'Active' || submitting}>
+                <CheckCircle className="mr-2 h-4 w-4" />
+                Mark as Fulfilled
+              </Button> */}
+              <Button variant="destructive" onClick={handleDelete} disabled={request.status === 'Deleted' || submitting}>
+                <Trash2 className="mr-2 h-4 w-4" />
+                Delete Request
+              </Button>
             </div>
           </CardContent>
         </Card>

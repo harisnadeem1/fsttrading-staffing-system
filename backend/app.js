@@ -4,6 +4,7 @@ const adminRoutes = require('./routes/adminRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const path = require('path');
+const requestRoutes = require('./routes/requestRoutes');
 
 require('dotenv').config();
 
@@ -16,5 +17,6 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/jobs', jobRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'))); // serve files
 app.use('/api/applications', applicationRoutes);
+app.use('/api/requests', requestRoutes);
 
 module.exports = app;

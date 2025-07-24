@@ -40,33 +40,46 @@ const RequestStaff = () => {
     setFormData(prev => ({ ...prev, serviceNeeded: value }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!formData.companyName || !formData.contactName || !formData.email || !formData.typeOfWorkers || !formData.serviceNeeded) {
-      toast({
-        title: "Please fill in all required fields",
-        variant: "destructive",
-        duration: 3000,
-      });
-      return;
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const requests = JSON.parse(localStorage.getItem('staffRequests') || '[]');
-    const newRequest = {
-      id: Date.now(),
-      ...formData,
-      submittedAt: new Date().toISOString()
-    };
-    requests.push(newRequest);
-    localStorage.setItem('staffRequests', JSON.stringify(requests));
+  if (!formData.companyName || !formData.contactName || !formData.email || !formData.typeOfWorkers || !formData.serviceNeeded) {
+    toast({
+      title: "Please fill in all required fields",
+      variant: "destructive",
+      duration: 3000,
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/requests`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Something went wrong');
+    }
 
     setIsSubmitted(true);
     toast({
-      title: t.requestSuccess,
+      title: "✅ Request submitted successfully",
+      description: "We’ll get back to you shortly.",
       duration: 5000,
     });
-  };
+  } catch (err) {
+    toast({
+      title: "Error submitting request",
+      description: err.message || 'Please try again later.',
+      variant: "destructive"
+    });
+  }
+};
+
 
   const faqItems = [
     { q: "How quickly can we get staff?", a: "Typically, we can provide suitable candidates within 24-72 hours, depending on the role's complexity and your specific requirements." },

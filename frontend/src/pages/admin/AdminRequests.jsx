@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
@@ -6,15 +6,31 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 
 const AdminRequests = () => {
   const { toast } = useToast();
-  const [requests] = useState(() => {
-    const storedRequests = JSON.parse(localStorage.getItem('staffRequests') || '[]');
-    return storedRequests.map(req => ({ ...req, status: req.status || 'Active' }));
-  });
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchRequests = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/requests`);
+        if (!res.ok) throw new Error(`Error ${res.status}: ${res.statusText}`);
+        const data = await res.json();
+        setRequests(data);
+      } catch (err) {
+        console.error(err);
+        setError('Failed to load employer requests.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequests();
+  }, []);
 
   const handleDownloadCSV = () => {
     if (requests.length === 0) {
@@ -22,48 +38,55 @@ const AdminRequests = () => {
       return;
     }
 
-    const headers = ["ID", "Company Name", "Contact Name", "Email", "Phone", "Service Needed", "Workers Needed", "Duration", "Status", "Notes", "Submitted At"];
+    const headers = ["ID", "Company Name", "Contact Name", "Email", "Phone", "Service Needed", "Workers Needed", "Duration", "Notes", "Submitted At"];
     const csvContent = [
       headers.join(','),
       ...requests.map(req => [
-        `"${req.id}"`,
-        `"${req.companyName}"`,
-        `"${req.contactName}"`,
+        `"${req.request_id}"`,
+        `"${req.company_name}"`,
+        `"${req.contact_name}"`,
         `"${req.email}"`,
         `"${req.phone}"`,
-        `"${req.serviceNeeded}"`,
-        `"${req.typeOfWorkers}"`,
+        `"${req.service_needed}"`,
+        `"${req.worker_type}"`,
         `"${req.duration}"`,
-        `"${req.status}"`,
-        `"${req.notes.replace(/"/g, '""')}"`,
-        `"${new Date(req.submittedAt).toISOString()}"`
+        `"${req.additional_notes?.replace(/"/g, '""') || ''}"`,
+        `"${new Date(req.submitted_at).toISOString()}"`
       ].join(','))
     ].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "employer_requests.csv");
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", "employer_requests.csv");
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
     toast({ title: "CSV download started." });
   };
 
-  const getStatusVariant = (status) => {
-    switch (status) {
-      case 'Fulfilled':
-        return 'default'; // Greenish in default theme
-      case 'Deleted':
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
+  const getStatusVariant = () => 'secondary'; // Placeholder, can add real logic later
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[300px]">
+        <Loader2 className="animate-spin h-6 w-6 text-muted-foreground" />
+        <span className="ml-3">Loading requests...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="text-center text-red-600 py-8">
+        <p>{error}</p>
+        <Button onClick={() => window.location.reload()}>Try Again</Button>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -109,20 +132,20 @@ const AdminRequests = () => {
                   </TableHeader>
                   <TableBody>
                     {requests.map((req) => (
-                      <TableRow key={req.id}>
-                        <TableCell className="font-medium">{req.companyName}</TableCell>
-                        <TableCell>{req.serviceNeeded}</TableCell>
-                        <TableCell>{new Date(req.submittedAt).toLocaleDateString()}</TableCell>
+                      <TableRow key={req.request_id}>
+                        <TableCell className="font-medium">{req.company_name}</TableCell>
+                        <TableCell>{req.service_needed}</TableCell>
+                        <TableCell>{new Date(req.submitted_at).toLocaleDateString()}</TableCell>
                         <TableCell>
-                          <Badge variant={getStatusVariant(req.status)}>{req.status}</Badge>
+                          <Badge variant={getStatusVariant('Active')}>Active</Badge>
                         </TableCell>
                         <TableCell className="text-right">
-                           <Button asChild variant="outline" size="sm">
-                             <Link to={`/admin/requests/${req.id}`}>
-                               <Eye className="mr-2 h-4 w-4" />
-                               View
-                             </Link>
-                           </Button>
+                          <Button asChild variant="outline" size="sm">
+                            <Link to={`/admin/requests/${req.request_id}`}>
+                              <Eye className="mr-2 h-4 w-4" />
+                              View
+                            </Link>
+                          </Button>
                         </TableCell>
                       </TableRow>
                     ))}

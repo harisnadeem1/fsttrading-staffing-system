@@ -1,4 +1,8 @@
 const db = require('../config/db');
+const fs = require('fs');
+const path = require('path');
+
+
 
 const submitApplication = async (req, res) => {
   try {
@@ -55,4 +59,62 @@ const checkDuplicateApplication = async (req, res) => {
   }
 };
 
-module.exports = { submitApplication ,checkDuplicateApplication};
+
+const getApplicationsByJobId = async (req, res) => {
+  const { jobId } = req.params;
+
+  try {
+    const result = await db.query(
+      `SELECT application_id, full_name, email, phone, submitted_at, cv_url 
+       FROM job_applications 
+       WHERE job_id = $1 
+       ORDER BY submitted_at DESC`,
+      [jobId]
+    );
+
+    res.status(200).json(result.rows);
+  } catch (err) {
+    console.error('Error fetching applications:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+const deleteApplication = async (req, res) => {
+  const applicationId = req.params.id;
+
+  try {
+    // First get the application and its CV filename
+    const result = await db.query(
+      'SELECT cv_url FROM job_applications WHERE application_id = $1',
+      [applicationId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    const cvUrl = result.rows[0].cv_url;
+    const cvFilename = path.basename(cvUrl); // Extract filename only
+
+    // Delete file from disk
+    const cvPath = path.join(__dirname, '..', 'uploads', cvFilename);
+
+    if (fs.existsSync(cvPath)) {
+      fs.unlinkSync(cvPath); // delete file
+    }
+
+    // Delete the application from DB
+    await db.query('DELETE FROM job_applications WHERE application_id = $1', [applicationId]);
+
+    res.status(200).json({ message: 'Application and CV deleted successfully' });
+
+  } catch (err) {
+    console.error('Error deleting application:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+module.exports = { submitApplication ,checkDuplicateApplication, getApplicationsByJobId , deleteApplication};
