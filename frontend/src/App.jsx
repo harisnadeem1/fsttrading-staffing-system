@@ -23,6 +23,8 @@ import AdminJobApplicants from '@/pages/admin/AdminJobApplicants';
 import AdminApplicationDetails from '@/pages/admin/AdminApplicationDetails';
 import AdminRequests from '@/pages/admin/AdminRequests';
 import AdminRequestDetails from '@/pages/admin/AdminRequestDetails';
+import AdminContacts from '@/pages/admin/AdminContacts';
+import AdminContactDetails from '@/pages/admin/AdminContactDetails';
 
 
 const PrivateRoute = ({ children }) => {
@@ -71,6 +73,8 @@ const AppContent = () => {
             <Route path="applications/:jobId/:applicationId" element={<AdminApplicationDetails />} />
             <Route path="requests" element={<AdminRequests />} />
             <Route path="requests/:requestId" element={<AdminRequestDetails />} />
+            <Route path="contacts" element={<AdminContacts />} />
+            <Route path="contacts/:contactId" element={<AdminContactDetails />} />
           </Route>
         </Routes>
       </main>

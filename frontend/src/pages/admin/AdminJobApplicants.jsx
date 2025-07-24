@@ -5,9 +5,15 @@ import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Download, Eye, Trash2, ArrowLeft, AlertTriangle } from 'lucide-react';
+import { Download, Eye, Trash2, ArrowLeft, AlertTriangle, User, Mail, Phone, Calendar, MoreVertical, FileText } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
 import { Loader2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogTitle,
@@ -121,6 +127,74 @@ const AdminJobApplicants = () => {
     }
   };
 
+  // Mobile Applicant Card Component
+  const ApplicantCard = ({ app }) => (
+    <Card className="md:hidden mb-4">
+      <CardHeader className="pb-3">
+        <div className="flex justify-between items-start">
+          <div className="flex-1 min-w-0">
+            <CardTitle className="text-lg font-semibold flex items-center">
+              <User className="h-4 w-4 mr-2 text-muted-foreground flex-shrink-0" />
+              <span className="truncate">{app.full_name}</span>
+            </CardTitle>
+            <div className="space-y-1 mt-2">
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Mail className="h-3 w-3 mr-2 flex-shrink-0" />
+                <span className="truncate">{app.email}</span>
+              </div>
+              {app.phone && (
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Phone className="h-3 w-3 mr-2 flex-shrink-0" />
+                  <span>{app.phone}</span>
+                </div>
+              )}
+            </div>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-8 w-8">
+                {deleteLoading === app.application_id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MoreVertical className="h-4 w-4" />
+                )}
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem 
+                onClick={() => handleDownloadCV(app.cv_url)}
+                disabled={!app.cv_url}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download CV
+              </DropdownMenuItem>
+              <DropdownMenuItem 
+                onClick={() => openDeleteConfirm(app)}
+                disabled={deleteLoading === app.application_id}
+                className="text-red-600 focus:text-red-600"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Application
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex items-center text-sm text-muted-foreground">
+          <Calendar className="h-3 w-3 mr-2" />
+          <span>Applied: {new Date(app.submitted_at).toLocaleDateString()}</span>
+        </div>
+        {app.cv_url && (
+          <div className="flex items-center text-sm text-blue-600 mt-2">
+            <FileText className="h-3 w-3 mr-2" />
+            <span>CV Available</span>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-[300px]">
@@ -133,8 +207,10 @@ const AdminJobApplicants = () => {
   if (!job) {
     return (
       <div className="text-center p-8">
-        <h1 className="text-2xl font-bold">Job not found</h1>
-        <Button onClick={() => navigate('/admin/applications')} className="mt-4">Back to Applications</Button>
+        <h1 className="text-xl sm:text-2xl font-bold">Job not found</h1>
+        <Button onClick={() => navigate('/admin/applications')} className="mt-4">
+          Back to Applications
+        </Button>
       </div>
     );
   }
@@ -146,20 +222,49 @@ const AdminJobApplicants = () => {
       </Helmet>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-6">
         <div>
-          <Button variant="ghost" onClick={() => navigate('/admin/applications')}>
+          <Button variant="ghost" onClick={() => navigate('/admin/applications')} className="text-sm">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to All Jobs
           </Button>
         </div>
 
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex flex-col gap-4">
           <div>
-            <h1 className="text-3xl font-bold">Applicants for "{job.title}"</h1>
-            <p className="text-muted-foreground">Manage applications for this job posting.</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold line-clamp-2">
+              Applicants for "<span className="text-blue-600">{job.title}</span>"
+            </h1>
+            <p className="text-muted-foreground text-sm sm:text-base mt-1">
+              Manage applications for this job posting.
+            </p>
           </div>
         </div>
 
-        <Card>
+        {/* Mobile Cards View */}
+        <div className="md:hidden">
+          {applications.length > 0 ? (
+            <div className="space-y-4">
+              <div className="text-sm text-muted-foreground mb-4">
+                {applications.length} application{applications.length !== 1 ? 's' : ''} found
+              </div>
+              {applications.map((app) => (
+                <ApplicantCard key={app.application_id} app={app} />
+              ))}
+            </div>
+          ) : (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center py-12">
+                <User className="h-12 w-12 text-muted-foreground mb-4" />
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">No Applications Yet</h3>
+                <p className="text-sm text-muted-foreground text-center">
+                  No applications have been submitted for this job yet.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        {/* Desktop Table View */}
+        <Card className="hidden md:block">
           <CardHeader>
             <CardTitle>Applications List</CardTitle>
             <CardDescription>
@@ -187,11 +292,6 @@ const AdminJobApplicants = () => {
                         <TableCell>{app.phone || 'N/A'}</TableCell>
                         <TableCell>{new Date(app.submitted_at).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right space-x-2">
-                          {/* <Button asChild variant="outline" size="sm">
-                            <Link to={`/admin/applications/${jobId}/${app.application_id}`}>
-                              <Eye className="h-4 w-4" />
-                            </Link>
-                          </Button> */}
                           <Button variant="outline" size="sm" onClick={() => handleDownloadCV(app.cv_url)}>
                             <Download className="h-4 w-4" />
                           </Button>
@@ -216,6 +316,8 @@ const AdminJobApplicants = () => {
               </div>
             ) : (
               <div className="text-center py-12">
+                <User className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-muted-foreground mb-2">No Applications Yet</h3>
                 <p className="text-muted-foreground">No applications have been submitted for this job yet.</p>
               </div>
             )}
@@ -231,7 +333,8 @@ const AdminJobApplicants = () => {
           PaperProps={{
             sx: {
               borderRadius: 2,
-              p: 1
+              p: 1,
+              mx: 2, // Add margin on mobile
             }
           }}
         >
@@ -288,11 +391,12 @@ const AdminJobApplicants = () => {
             )}
           </DialogContent>
           
-          <DialogActions sx={{ px: 3, pb: 2 }}>
+          <DialogActions sx={{ px: 3, pb: 2, flexDirection: { xs: 'column', sm: 'row' }, gap: 1 }}>
             <MuiButton 
               onClick={() => setDeleteConfirmOpen(false)}
               variant="outlined"
               disabled={deleteLoading === applicationToDelete?.application_id}
+              fullWidth={{ xs: true, sm: false }}
             >
               Cancel
             </MuiButton>
@@ -301,6 +405,7 @@ const AdminJobApplicants = () => {
               variant="contained"
               color="error"
               disabled={deleteLoading === applicationToDelete?.application_id}
+              fullWidth={{ xs: true, sm: false }}
               startIcon={
                 deleteLoading === applicationToDelete?.application_id ? (
                   <CircularProgress size={16} color="inherit" />

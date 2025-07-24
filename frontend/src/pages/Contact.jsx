@@ -30,33 +30,36 @@ const Contact = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!formData.name || !formData.email || !formData.subject || !formData.message) {
-      toast({
-        title: "Please fill in all required fields",
-        variant: "destructive",
-        duration: 3000,
-      });
-      return;
-    }
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    const contacts = JSON.parse(localStorage.getItem('contactMessages') || '[]');
-    const newContact = {
-      id: Date.now(),
-      ...formData,
-      submittedAt: new Date().toISOString()
-    };
-    contacts.push(newContact);
-    localStorage.setItem('contactMessages', JSON.stringify(contacts));
+  if (!formData.name || !formData.email || !formData.subject || !formData.message) {
+    toast({
+      title: "Please fill in all required fields",
+      variant: "destructive",
+      duration: 3000,
+    });
+    return;
+  }
+
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/contact`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    });
+
+    if (!res.ok) throw new Error('Failed to send message');
 
     setIsSubmitted(true);
+    toast({ title: t.contactSuccess });
+  } catch (err) {
     toast({
-      title: t.contactSuccess,
-      duration: 5000,
+      title: "Something went wrong. Please try again later.",
+      variant: "destructive"
     });
-  };
+  }
+};
 
   if (isSubmitted) {
     return (

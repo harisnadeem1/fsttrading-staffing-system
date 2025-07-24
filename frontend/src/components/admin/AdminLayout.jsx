@@ -1,6 +1,6 @@
 import React from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Briefcase, FileText, Users, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Briefcase, FileText, Users, LogOut, Menu, X, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 
@@ -18,6 +18,7 @@ const AdminLayout = () => {
     { to: '/admin/jobs', icon: Briefcase, text: 'Manage Jobs' },
     { to: '/admin/applications', icon: FileText, text: 'Job Applications' },
     { to: '/admin/requests', icon: Users, text: 'Employer Requests' },
+    { to: '/admin/contacts', icon: MessageSquare, text: 'Contact Messages' },
   ];
 
   const NavContent = () => (
@@ -61,19 +62,27 @@ const AdminLayout = () => {
         <NavContent />
       </aside>
 
-      {/* Mobile Sidebar */}
-      <div className={`fixed inset-0 z-40 lg:hidden transition-transform transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <aside className="w-64 bg-white h-full">
-          <NavContent />
-        </aside>
-        <div className="fixed inset-0 bg-black/30" onClick={() => setIsSidebarOpen(false)}></div>
-      </div>
+      {/* Mobile Sidebar Overlay */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          {/* Background overlay */}
+          <div 
+            className="fixed inset-0 bg-black/50" 
+            onClick={() => setIsSidebarOpen(false)}
+          ></div>
+          
+          {/* Sidebar */}
+          <aside className="fixed top-0 left-0 w-64 h-full bg-white shadow-lg z-50 transform transition-transform duration-300 ease-in-out">
+            <NavContent />
+          </aside>
+        </div>
+      )}
 
       <div className="flex-1 flex flex-col">
-        <header className="lg:hidden flex items-center justify-between p-4 bg-white border-b">
+        <header className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-gray-200 sticky top-0 z-40">
           <h1 className="text-xl font-bold">F4ast Trading</h1>
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-            {isSidebarOpen ? <X /> : <Menu />}
+            {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>
         </header>
         <main className="flex-1 p-4 sm:p-6 lg:p-8 overflow-y-auto">

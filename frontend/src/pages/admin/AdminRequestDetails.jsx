@@ -7,6 +7,22 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, User, Mail, Phone, Briefcase, Clock, FileText, Trash2, CheckCircle, Loader2 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button as MuiButton,
+  Typography,
+  Box,
+  List,
+  ListItem,
+  ListItemText,
+  Alert,
+  CircularProgress
+} from '@mui/material';
+import { Warning as WarningIcon } from '@mui/icons-material';
 
 const AdminRequestDetails = () => {
   const { requestId } = useParams();
@@ -17,6 +33,7 @@ const AdminRequestDetails = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   // Fetch request from backend
   useEffect(() => {
@@ -56,8 +73,6 @@ const AdminRequestDetails = () => {
   };
 
   const handleDelete = async () => {
-    if (!window.confirm("Are you sure you want to delete this request? This cannot be undone.")) return;
-
     setSubmitting(true);
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/requests/${requestId}`, { method: 'DELETE' });
@@ -69,7 +84,12 @@ const AdminRequestDetails = () => {
       toast({ title: "Failed to delete", variant: "destructive" });
     } finally {
       setSubmitting(false);
+      setDeleteConfirmOpen(false);
     }
+  };
+
+  const openDeleteConfirm = () => {
+    setDeleteConfirmOpen(true);
   };
 
   const getStatusVariant = (status) => {
@@ -170,13 +190,112 @@ const AdminRequestDetails = () => {
                 <CheckCircle className="mr-2 h-4 w-4" />
                 Mark as Fulfilled
               </Button> */}
-              <Button variant="destructive" onClick={handleDelete} disabled={request.status === 'Deleted' || submitting}>
-                <Trash2 className="mr-2 h-4 w-4" />
-                Delete Request
+              <Button 
+                variant="destructive" 
+                onClick={openDeleteConfirm} 
+                disabled={request.status === 'Deleted' || submitting}
+              >
+                {submitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Delete Request
+                  </>
+                )}
               </Button>
             </div>
           </CardContent>
         </Card>
+
+        {/* Delete Confirmation Dialog - MUI */}
+        <Dialog 
+          open={deleteConfirmOpen} 
+          onClose={() => setDeleteConfirmOpen(false)}
+          maxWidth="sm"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: 2,
+              p: 1
+            }
+          }}
+        >
+          <DialogTitle>
+            <Box display="flex" alignItems="center" gap={1}>
+              <WarningIcon color="error" />
+              <Typography variant="h6" component="span">
+                Delete Service Request
+              </Typography>
+            </Box>
+          </DialogTitle>
+          
+          <DialogContent>
+            <DialogContentText sx={{ mb: 2 }}>
+              Are you sure you want to delete the service request from{' '}
+              <Typography component="span" fontWeight="bold">
+                {request.company_name}
+              </Typography>
+              ?
+            </DialogContentText>
+            
+            <Alert severity="error" sx={{ mb: 2 }}>
+              <Typography variant="body2" fontWeight="bold" gutterBottom>
+                This action will permanently remove:
+              </Typography>
+              <List dense sx={{ mt: 1 }}>
+                <ListItem sx={{ py: 0.5, px: 0 }}>
+                  <ListItemText 
+                    primary="• The entire service request record" 
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+                <ListItem sx={{ py: 0.5, px: 0 }}>
+                  <ListItemText 
+                    primary="• Contact information and details" 
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+                <ListItem sx={{ py: 0.5, px: 0 }}>
+                  <ListItemText 
+                    primary="• Any notes and requirements" 
+                    primaryTypographyProps={{ variant: 'body2' }}
+                  />
+                </ListItem>
+              </List>
+            </Alert>
+
+            <Typography variant="body2" color="error" fontWeight="bold">
+              This action cannot be undone.
+            </Typography>
+          </DialogContent>
+          
+          <DialogActions sx={{ px: 3, pb: 2 }}>
+            <MuiButton 
+              onClick={() => setDeleteConfirmOpen(false)}
+              variant="outlined"
+              disabled={submitting}
+            >
+              Cancel
+            </MuiButton>
+            <MuiButton
+              onClick={handleDelete}
+              variant="contained"
+              color="error"
+              disabled={submitting}
+              startIcon={
+                submitting ? (
+                  <CircularProgress size={16} color="inherit" />
+                ) : null
+              }
+            >
+              {submitting ? 'Deleting...' : 'Delete Request'}
+            </MuiButton>
+          </DialogActions>
+        </Dialog>
       </motion.div>
     </>
   );
