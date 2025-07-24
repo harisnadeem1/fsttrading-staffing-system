@@ -128,7 +128,6 @@ const Home = () => {
               <div className="text-sm text-gray-500">
                 <p><strong>Address:</strong> {t.address}</p>
                 <p><strong>{t.kvk}</strong></p>
-                <p><strong>{t.director}</strong></p>
               </div>
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} viewport={{ once: true }} className="bg-blue-800 text-white p-8 rounded-lg shadow-lg">

@@ -18,7 +18,6 @@ const Footer = () => {
             <p className="text-gray-300 text-sm mt-2">{t.email}</p>
             <p className="text-gray-300 text-sm mt-2">{t.phone}</p>
             <p className="text-gray-300 text-sm mt-2">{t.kvk}</p>
-            <p className="text-gray-300 text-sm mt-2">{t.director}</p>
           </div>
 
           {/* Quick Links */}
