@@ -123,7 +123,7 @@ const Apply = () => {
     if (checkData.alreadyApplied) {
       toast({
         title: "Already Applied",
-        description: "You’ve already submitted an application for this job.",
+        description: "You've already submitted an application for this job.",
         variant: "destructive",
         duration: 4000,
       });
@@ -247,7 +247,7 @@ const Apply = () => {
                         <Input 
                           value={`${currentJob.title} - ${currentJob.location}`}
                           disabled
-                          className="bg-gray-50 text-gray-700"
+                          className="bg-gray-50 text-gray-700 text-base"
                         />
                         <p className="text-sm text-gray-500 mt-1">
                           Job preselected. <Link to="/apply" className="text-blue-600 hover:underline">Change job?</Link>
@@ -256,7 +256,7 @@ const Apply = () => {
                     ) : (
                       // If coming from general apply page, show dropdown
                       <Select value={selectedJob} onValueChange={setSelectedJob} required>
-                        <SelectTrigger id="jobId" className="w-full mt-1">
+                        <SelectTrigger id="jobId" className="w-full mt-1 text-base">
                           <SelectValue placeholder={t.selectJob} />
                         </SelectTrigger>
                         <SelectContent>
@@ -284,7 +284,7 @@ const Apply = () => {
                         required 
                         value={formData.fullName} 
                         onChange={handleInputChange} 
-                        className="mt-1" 
+                        className="mt-1 text-base" 
                       />
                     </div>
                     <div>
@@ -296,7 +296,7 @@ const Apply = () => {
                         required 
                         value={formData.email} 
                         onChange={handleInputChange} 
-                        className="mt-1" 
+                        className="mt-1 text-base" 
                       />
                     </div>
                   </div>
@@ -309,7 +309,7 @@ const Apply = () => {
                       type="tel" 
                       value={formData.phone} 
                       onChange={handleInputChange} 
-                      className="mt-1" 
+                      className="mt-1 text-base" 
                     />
                   </div>
 
@@ -323,6 +323,7 @@ const Apply = () => {
                         accept=".pdf" 
                         required 
                         onChange={handleFileChange} 
+                        className="text-base"
                       />
                       <p className="text-xs text-gray-500 mt-1">
                         PDF files only, maximum 2MB
@@ -341,7 +342,7 @@ const Apply = () => {
                       rows={5} 
                       value={formData.coverLetter} 
                       onChange={handleInputChange} 
-                      className="mt-1" 
+                      className="mt-1 text-base" 
                       placeholder="Tell us about your experience, availability, or why you're a great fit..." 
                     />
                   </div>

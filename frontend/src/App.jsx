@@ -25,6 +25,10 @@ import AdminRequests from '@/pages/admin/AdminRequests';
 import AdminRequestDetails from '@/pages/admin/AdminRequestDetails';
 import AdminContacts from '@/pages/admin/AdminContacts';
 import AdminContactDetails from '@/pages/admin/AdminContactDetails';
+import About from '@/pages/About';
+
+
+import ScrollToTop from './components/ScrollToTop'; // Adjust path as needed
 
 
 const PrivateRoute = ({ children }) => {
@@ -38,6 +42,8 @@ const AppContent = () => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
+          <ScrollToTop />
+
       {isPublicRoute && <Header />}
       <main className="flex-grow">
         <Routes>
@@ -52,6 +58,7 @@ const AppContent = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy" element={<Privacy />} />
           <Route path="/terms" element={<Terms />} />
+          <Route path="/about" element={<About />} />
 
           
           {/* Admin Routes */}

@@ -13,7 +13,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { translations } from '@/data/translations';
 import { Link } from 'react-router-dom';
 
-const JOBS_PER_PAGE = 6;
+const JOBS_PER_PAGE = 12;
 
 const Jobs = () => {
   const { language } = useLanguage();
@@ -111,67 +111,79 @@ const Jobs = () => {
       </Helmet>
 
       <div className="min-h-screen bg-gray-50">
-        <section className="bg-white py-12 border-b">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <motion.h1 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-              className="text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-            >
-              {t.jobListingsTitle}
-            </motion.h1>
-            <motion.p 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-lg text-gray-600 max-w-3xl mx-auto"
-            >
-              {t.jobListingsSubtitle}
-            </motion.p>
-          </div>
-        </section>
+        {/* Hero Header Section */}
+<section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-12 lg:py-16">
+  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+    <motion.h1 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="text-3xl md:text-4xl font-bold text-gray-900 mb-3"
+    >
+      {t.jobListingsTitle}
+    </motion.h1>
+    <motion.p 
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, delay: 0.2 }}
+      className="text-lg text-gray-600 max-w-3xl mx-auto"
+    >
+      {t.jobListingsSubtitle}
+    </motion.p>
+  </div>
+</section>
 
-        <section className="py-8 bg-white border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-center">
-                <div className="lg:col-span-2 relative">
-                   <Input 
-                      type="text" 
-                      placeholder={t.searchPlaceholder}
-                      className="pl-10 h-12 text-base"
-                      value={filters.keyword}
-                      onChange={(e) => handleFilterChange('keyword', e.target.value)}
-                   />
-                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                </div>
-                <div className="lg:col-span-2">
-                  <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value)}>
-                    <SelectTrigger className="h-12 text-base">
-                      <SelectValue placeholder={t.location} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">{t.allLocations}</SelectItem>
-                      {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 items-center">
-                <p className="font-medium">{t.jobType}:</p>
-                {jobTypes.map(type => (
-                  <div key={type.id} className="flex items-center space-x-2">
-                    <Checkbox 
-                      id={type.id} 
-                      checked={filters.types.includes(type.id)}
-                      onCheckedChange={() => handleTypeChange(type.id)}
-                    />
-                    <Label htmlFor={type.id} className="font-normal">{type.label}</Label>
-                  </div>
-                ))}
-              </div>
-            </div>
-        </section>
+{/* Modern Filter Section */}
+<section className="py-6 bg-white shadow-sm">
+  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Search and Location */}
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+      <div className="relative">
+        <Input 
+          type="text" 
+          placeholder={t.searchPlaceholder}
+          className="pl-12 h-12 text-base bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 transition-all"
+          value={filters.keyword}
+          onChange={(e) => handleFilterChange('keyword', e.target.value)}
+        />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+      </div>
+      
+      <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value)}>
+        <SelectTrigger className="h-12 text-base bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500">
+          <SelectValue placeholder={t.location} />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">{t.allLocations}</SelectItem>
+          {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+        </SelectContent>
+      </Select>
+    </div>
+
+    {/* Job Types Filter */}
+    <div className="bg-gray-50 rounded-lg p-3">
+      <div className="flex flex-wrap items-center gap-3">
+        <span className="text-sm font-semibold text-gray-700">{t.jobType}:</span>
+        {jobTypes.map(type => (
+          <div key={type.id} className="flex items-center space-x-2 bg-white rounded-full px-3 py-1.5 shadow-sm hover:shadow-md transition-shadow">
+            <Checkbox 
+              id={type.id} 
+              checked={filters.types.includes(type.id)}
+              onCheckedChange={() => handleTypeChange(type.id)}
+              className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+            />
+            <Label 
+              htmlFor={type.id} 
+              className="text-sm font-medium text-gray-700 cursor-pointer"
+            >
+              {type.label}
+            </Label>
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
 
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

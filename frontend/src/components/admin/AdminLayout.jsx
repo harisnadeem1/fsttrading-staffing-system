@@ -24,7 +24,7 @@ const AdminLayout = () => {
   const NavContent = () => (
     <div className="flex flex-col h-full">
       <div className="p-4 border-b border-gray-200">
-        <h1 className="text-2xl font-bold text-gray-800">F4ast Trading</h1>
+        <h1 className="text-2xl font-bold text-gray-800">FST Trading</h1>
         <p className="text-sm text-gray-500">Admin Panel</p>
       </div>
       <nav className="flex-grow p-4 space-y-2">
@@ -80,7 +80,7 @@ const AdminLayout = () => {
 
       <div className="flex-1 flex flex-col">
         <header className="lg:hidden flex items-center justify-between p-4 bg-white border-b border-gray-200 sticky top-0 z-40">
-          <h1 className="text-xl font-bold">F4ast Trading</h1>
+          <h1 className="text-xl font-bold">FST Trading</h1>
           <Button variant="ghost" size="icon" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
             {isSidebarOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </Button>

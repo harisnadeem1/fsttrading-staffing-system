@@ -11,8 +11,8 @@ const Privacy = () => {
   return (
     <>
       <Helmet>
-        <title>{t.companyName} - {t.privacy}</title>
-        <meta name="description" content={`Privacy Policy for ${t.companyName} - Learn how we collect, use, and protect your personal information.`} />
+        <title>{t.companyName} - {t.privacyPolicyTitle}</title>
+        <meta name="description" content={t.privacyPolicyDesc} />
       </Helmet>
 
       <div className="bg-white py-12">
@@ -23,51 +23,158 @@ const Privacy = () => {
             transition={{ duration: 0.8 }}
           >
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-              {t.privacy}
+              {t.privacyPolicyTitle}
             </h1>
             <p className="text-gray-600 mb-8">
-              Last updated: July 23, 2024
+              {t.lastUpdated}: {t.lastUpdatedDate}
             </p>
 
-            <div className="prose prose-lg max-w-none text-gray-700">
-              <p>
-                This privacy policy explains how {t.companyName} collects, uses, and protects your personal information.
-              </p>
-              
-              <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">1. Information We Collect</h2>
-              <p>
-                We collect information you provide directly to us, such as when you apply for jobs, request staff, or contact us. This may include personal identification information (name, email, phone), professional information (CV, work experience), and company information.
-              </p>
-
-              <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">2. How We Use Your Information</h2>
-              <p>
-                We use the information to provide our staffing services, match job seekers with opportunities, connect employers with candidates, communicate with you, and comply with legal obligations.
-              </p>
-
-              <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">3. Information Sharing</h2>
-              <p>
-                We may share your information with potential employers (with your consent), service providers who assist our business, or when required by law.
-              </p>
-
-              <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">4. Data Security</h2>
-              <p>
-                We implement appropriate measures to protect your personal information against unauthorized access, alteration, or destruction.
-              </p>
-
-              <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">5. Your Rights</h2>
-              <p>
-                Under GDPR and Dutch privacy laws, you have the right to access, correct, or delete your personal data. You can also object to processing and request data portability.
-              </p>
-
-              <h2 className="text-2xl font-semibold text-gray-900 mt-8 mb-4">6. Contact Us</h2>
-              <p>
-                If you have any questions about this Privacy Policy, please contact us at:
-              </p>
-              <div className="mt-4">
-                <p>Email: {t.email}</p>
-                <p>Phone: {t.phone}</p>
-                <p>Address: {t.address}</p>
+            <div className="prose prose-lg max-w-none text-gray-700 space-y-8">
+              <div className="bg-blue-50 p-6 rounded-lg border-l-4 border-blue-600">
+                <p className="font-medium text-blue-900 mb-2">{t.privacyIntroTitle}</p>
+                <p className="text-blue-800">{t.privacyIntroText}</p>
               </div>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. {t.infoWeCollectTitle}</h2>
+                <p className="mb-4">{t.infoWeCollectIntro}</p>
+                
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.personalInfoTitle}</h3>
+                <ul className="list-disc pl-6 mb-4 space-y-2">
+                  <li>{t.personalInfo1}</li>
+                  <li>{t.personalInfo2}</li>
+                  <li>{t.personalInfo3}</li>
+                  <li>{t.personalInfo4}</li>
+                </ul>
+
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.professionalInfoTitle}</h3>
+                <ul className="list-disc pl-6 mb-4 space-y-2">
+                  <li>{t.professionalInfo1}</li>
+                  <li>{t.professionalInfo2}</li>
+                  <li>{t.professionalInfo3}</li>
+                  <li>{t.professionalInfo4}</li>
+                </ul>
+
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.technicalInfoTitle}</h3>
+                <ul className="list-disc pl-6 mb-4 space-y-2">
+                  <li>{t.technicalInfo1}</li>
+                  <li>{t.technicalInfo2}</li>
+                  <li>{t.technicalInfo3}</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">2. {t.howWeUseTitle}</h2>
+                <p className="mb-4">{t.howWeUseIntro}</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>{t.useInfo1}</li>
+                  <li>{t.useInfo2}</li>
+                  <li>{t.useInfo3}</li>
+                  <li>{t.useInfo4}</li>
+                  <li>{t.useInfo5}</li>
+                  <li>{t.useInfo6}</li>
+                  <li>{t.useInfo7}</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">3. {t.legalBasisTitle}</h2>
+                <p className="mb-4">{t.legalBasisIntro}</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li><strong>{t.consent}:</strong> {t.consentDesc}</li>
+                  <li><strong>{t.contract}:</strong> {t.contractDesc}</li>
+                  <li><strong>{t.legalObligation}:</strong> {t.legalObligationDesc}</li>
+                  <li><strong>{t.legitimateInterest}:</strong> {t.legitimateInterestDesc}</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">4. {t.infoSharingTitle}</h2>
+                <p className="mb-4">{t.infoSharingIntro}</p>
+                
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.shareWithEmployersTitle}</h3>
+                <p className="mb-4">{t.shareWithEmployersDesc}</p>
+
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.serviceProvidersTitle}</h3>
+                <p className="mb-4">{t.serviceProvidersDesc}</p>
+
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.legalRequirementsTitle}</h3>
+                <p className="mb-4">{t.legalRequirementsDesc}</p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">5. {t.dataSecurityTitle}</h2>
+                <p className="mb-4">{t.dataSecurityIntro}</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>{t.security1}</li>
+                  <li>{t.security2}</li>
+                  <li>{t.security3}</li>
+                  <li>{t.security4}</li>
+                  <li>{t.security5}</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. {t.dataRetentionTitle}</h2>
+                <p className="mb-4">{t.dataRetentionIntro}</p>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li>{t.retention1}</li>
+                  <li>{t.retention2}</li>
+                  <li>{t.retention3}</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">7. {t.yourRightsTitle}</h2>
+                <p className="mb-4">{t.yourRightsIntro}</p>
+                <ul className="list-disc pl-6 space-y-3">
+                  <li><strong>{t.rightAccess}:</strong> {t.rightAccessDesc}</li>
+                  <li><strong>{t.rightRectification}:</strong> {t.rightRectificationDesc}</li>
+                  <li><strong>{t.rightErasure}:</strong> {t.rightErasureDesc}</li>
+                  <li><strong>{t.rightRestriction}:</strong> {t.rightRestrictionDesc}</li>
+                  <li><strong>{t.rightPortability}:</strong> {t.rightPortabilityDesc}</li>
+                  <li><strong>{t.rightObject}:</strong> {t.rightObjectDesc}</li>
+                  <li><strong>{t.rightComplain}:</strong> {t.rightComplainDesc}</li>
+                </ul>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">8. {t.cookiesTitle}</h2>
+                <p className="mb-4">{t.cookiesIntro}</p>
+                <h3 className="text-xl font-semibold text-gray-800 mb-3">{t.cookieTypesTitle}</h3>
+                <ul className="list-disc pl-6 space-y-2">
+                  <li><strong>{t.essentialCookies}:</strong> {t.essentialCookiesDesc}</li>
+                  <li><strong>{t.analyticalCookies}:</strong> {t.analyticalCookiesDesc}</li>
+                  <li><strong>{t.functionalCookies}:</strong> {t.functionalCookiesDesc}</li>
+                </ul>
+                <p className="mt-4">{t.cookieManagement}</p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">9. {t.internationalTransferTitle}</h2>
+                <p>{t.internationalTransferDesc}</p>
+              </section>
+
+              <section>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">10. {t.changesTitle}</h2>
+                <p>{t.changesDesc}</p>
+              </section>
+
+              <section className="bg-gray-50 p-6 rounded-lg">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. {t.contactTitle}</h2>
+                <p className="mb-4">{t.contactIntro}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p><strong>{t.dataProtectionOfficer}</strong></p>
+                    <p>{t.email}</p>
+                    <p>{t.phone}</p>
+                  </div>
+                  <div>
+                    <p><strong>{t.postalAddress}</strong></p>
+                    <p>{t.address}</p>
+                  </div>
+                </div>
+              </section>
             </div>
           </motion.div>
         </div>

@@ -68,7 +68,7 @@ const RequestStaff = () => {
     setIsSubmitted(true);
     toast({
       title: "✅ Request submitted successfully",
-      description: "We’ll get back to you shortly.",
+      description: "We'll get back to you shortly.",
       duration: 5000,
     });
   } catch (err) {
@@ -121,7 +121,7 @@ const RequestStaff = () => {
     <>
       <Helmet>
         <title>{t.companyName} - {t.requestStaff}</title>
-        <meta name="description" content="Request temporary staff for your business needs. F4ast Trading provides qualified personnel for various industries." />
+        <meta name="description" content="Request temporary staff for your business needs. FST Trading provides qualified personnel for various industries." />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50 py-12">
@@ -157,29 +157,60 @@ const RequestStaff = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="companyName">{t.companyNameLabel} *</Label>
-                      <Input id="companyName" name="companyName" type="text" required value={formData.companyName} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="companyName" 
+                        name="companyName" 
+                        type="text" 
+                        required 
+                        value={formData.companyName} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="contactName">{t.contactNameLabel} *</Label>
-                      <Input id="contactName" name="contactName" type="text" required value={formData.contactName} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="contactName" 
+                        name="contactName" 
+                        type="text" 
+                        required 
+                        value={formData.contactName} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="email">{t.email} *</Label>
-                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        required 
+                        value={formData.email} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="phone">Phone</Label>
-                      <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="phone" 
+                        name="phone" 
+                        type="tel" 
+                        value={formData.phone} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                   </div>
 
                   <div>
                     <Label htmlFor="serviceNeeded">{t.serviceNeeded} *</Label>
                     <Select value={formData.serviceNeeded} onValueChange={handleSelectChange} required>
-                      <SelectTrigger id="serviceNeeded" className="w-full mt-1">
+                      <SelectTrigger id="serviceNeeded" className="w-full mt-1 text-base">
                         <SelectValue placeholder="Select a service" />
                       </SelectTrigger>
                       <SelectContent>
@@ -193,17 +224,42 @@ const RequestStaff = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <Label htmlFor="typeOfWorkers">{t.typeOfWorkersLabel} *</Label>
-                      <Input id="typeOfWorkers" name="typeOfWorkers" type="text" required value={formData.typeOfWorkers} onChange={handleInputChange} className="mt-1" placeholder="e.g., Warehouse staff" />
+                      <Input 
+                        id="typeOfWorkers" 
+                        name="typeOfWorkers" 
+                        type="text" 
+                        required 
+                        value={formData.typeOfWorkers} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                        placeholder="e.g., Warehouse staff" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="duration">{t.durationLabel}</Label>
-                      <Input id="duration" name="duration" type="text" value={formData.duration} onChange={handleInputChange} className="mt-1" placeholder="e.g., 3 months" />
+                      <Input 
+                        id="duration" 
+                        name="duration" 
+                        type="text" 
+                        value={formData.duration} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                        placeholder="e.g., 3 months" 
+                      />
                     </div>
                   </div>
 
                   <div>
                     <Label htmlFor="notes">{t.notesLabel}</Label>
-                    <Textarea id="notes" name="notes" rows={4} value={formData.notes} onChange={handleInputChange} className="mt-1" placeholder="Please provide additional details..." />
+                    <Textarea 
+                      id="notes" 
+                      name="notes" 
+                      rows={4} 
+                      value={formData.notes} 
+                      onChange={handleInputChange} 
+                      className="mt-1 text-base" 
+                      placeholder="Please provide additional details..." 
+                    />
                   </div>
 
                   <Button type="submit" className="w-full" size="lg">

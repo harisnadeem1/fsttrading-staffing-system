@@ -43,7 +43,7 @@ export const jobTranslations = {
     // FAQ on Jobs page
     jobsFaqTitle: 'Frequently Asked Questions',
     jobsFaq1Q: 'Do I need to pay to apply?',
-    jobsFaq1A: 'No, applying for jobs through F4ast Trading is completely free for all candidates.',
+    jobsFaq1A: 'No, applying for jobs through FST Trading is completely free for all candidates.',
     jobsFaq2Q: 'Can I apply for multiple jobs?',
     jobsFaq2A: 'Yes, you are welcome to apply for any and all positions that match your skills and interests.',
     jobsFaq3Q: 'What happens after I submit my CV?',
@@ -55,7 +55,7 @@ export const jobTranslations = {
 
     // CTA on Jobs page
     jobsCtaTitle: '🚀 Ready to Get Hired?',
-    jobsCtaText: "Whether you're looking for temporary work or a long-term opportunity, F4ast Trading helps you connect with the right employers.",
+    jobsCtaText: "Whether you're looking for temporary work or a long-term opportunity, FST Trading helps you connect with the right employers.",
     jobsCtaButton: 'Start Your New Job Journey Today',
   },
   nl: {
@@ -102,7 +102,7 @@ export const jobTranslations = {
     // FAQ on Jobs page
     jobsFaqTitle: 'Veelgestelde Vragen',
     jobsFaq1Q: 'Moet ik betalen om te solliciteren?',
-    jobsFaq1A: 'Nee, solliciteren via F4ast Trading is volledig gratis voor alle kandidaten.',
+    jobsFaq1A: 'Nee, solliciteren via FST Trading is volledig gratis voor alle kandidaten.',
     jobsFaq2Q: 'Kan ik op meerdere vacatures solliciteren?',
     jobsFaq2A: 'Ja, u kunt solliciteren op alle functies die aansluiten bij uw vaardigheden en interesses.',
     jobsFaq3Q: 'Wat gebeurt er nadat ik mijn CV heb ingediend?',
@@ -114,7 +114,7 @@ export const jobTranslations = {
 
     // CTA on Jobs page
     jobsCtaTitle: '🚀 Klaar om Aangenomen te Worden?',
-    jobsCtaText: 'Of u nu op zoek bent naar tijdelijk werk of een langdurige kans, F4ast Trading helpt u in contact te komen met de juiste werkgevers.',
+    jobsCtaText: 'Of u nu op zoek bent naar tijdelijk werk of een langdurige kans, FST Trading helpt u in contact te komen met de juiste werkgevers.',
     jobsCtaButton: 'Begin Vandaag aan Je Nieuwe Carrière',
   }
 };

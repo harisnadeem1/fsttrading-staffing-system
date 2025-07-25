@@ -2,8 +2,8 @@
 export const commonTranslations = {
   en: {
     // Company Info
-    companyName: 'F4ast Trading',
-    email: 'f4asttradingg@gmail.com',
+    companyName: 'FST Trading',
+    email: 'FSTtradingg@gmail.com',
     phone: '+31 6 12502897',
     address: 'Kweekhoven 14, 1068ZT Amsterdam, Netherlands',
     kvk: 'KVK: 96650370',
@@ -49,8 +49,8 @@ export const commonTranslations = {
   },
   nl: {
     // Company Info
-    companyName: 'F4ast Trading',
-    email: 'f4asttradingg@gmail.com',
+    companyName: 'FST Trading',
+    email: 'FSTtradingg@gmail.com',
     phone: '+31 6 12502897',
     address: 'Kweekhoven 14, 1068ZT Amsterdam, Nederland',
     kvk: 'KVK: 96650370',

@@ -126,19 +126,51 @@ const Contact = () => {
                   <form onSubmit={handleSubmit} className="space-y-6">
                     <div>
                       <Label htmlFor="name">{t.fullName} *</Label>
-                      <Input id="name" name="name" type="text" required value={formData.name} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="name" 
+                        name="name" 
+                        type="text" 
+                        required 
+                        value={formData.name} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="email">{t.email} *</Label>
-                      <Input id="email" name="email" type="email" required value={formData.email} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="email" 
+                        name="email" 
+                        type="email" 
+                        required 
+                        value={formData.email} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="subject">{t.subject} *</Label>
-                      <Input id="subject" name="subject" type="text" required value={formData.subject} onChange={handleInputChange} className="mt-1" />
+                      <Input 
+                        id="subject" 
+                        name="subject" 
+                        type="text" 
+                        required 
+                        value={formData.subject} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                     <div>
                       <Label htmlFor="message">{t.message} *</Label>
-                      <Textarea id="message" name="message" rows={5} required value={formData.message} onChange={handleInputChange} className="mt-1" />
+                      <Textarea 
+                        id="message" 
+                        name="message" 
+                        rows={5} 
+                        required 
+                        value={formData.message} 
+                        onChange={handleInputChange} 
+                        className="mt-1 text-base" 
+                      />
                     </div>
                     <Button type="submit" className="w-full" size="lg">
                       {t.submit}
@@ -169,9 +201,9 @@ const Contact = () => {
                     <Phone className="h-5 w-5 mr-3 text-blue-800" />
                     <span>{t.phone}</span>
                   </div>
-                  <div className="border-t border-gray-200 my-4"></div>
+                  {/* <div className="border-t border-gray-200 my-4"></div>
                   <p>{t.kvk}</p>
-                  <p>{t.director}</p>
+                  <p>{t.director}</p> */}
                 </div>
               </div>
             </motion.div>

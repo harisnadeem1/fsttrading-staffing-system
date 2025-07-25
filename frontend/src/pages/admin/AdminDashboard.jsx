@@ -147,7 +147,7 @@ useEffect(() => {
 
         </motion.div>
         <div className="text-center mt-8">
-          <p className="text-muted-foreground">Welcome to the F4ast Trading Admin Panel.</p>
+          <p className="text-muted-foreground">Welcome to the FST Trading Admin Panel.</p>
         </div>
       </div>
     </>
