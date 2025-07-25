@@ -44,7 +44,6 @@ const AdminLogin = () => {
   }
 };
 
-
   return (
     <>
       <Helmet>
@@ -57,7 +56,24 @@ const AdminLogin = () => {
           transition={{ duration: 0.5 }}
           className="w-full max-w-md"
         >
-          <Card>
+          {/* Logo Section */}
+          <div className="flex items-center justify-center mb-8">
+            <div className="flex items-center">
+              <div className="w-12 h-12 bg-blue-600 rounded-lg flex items-center justify-center mr-3 shadow-lg">
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="white">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <span className="text-3xl font-bold text-gray-900">
+                <span className="text-blue-600">FST</span> TRADING
+              </span>
+            </div>
+          </div>
+
+          <Card className="shadow-xl">
             <CardHeader className="text-center">
               <CardTitle className="text-2xl">Admin Login</CardTitle>
               <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
@@ -71,6 +87,7 @@ const AdminLogin = () => {
                     type="text"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    className="text-base"
                     required
                   />
                 </div>
@@ -81,10 +98,11 @@ const AdminLogin = () => {
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="text-base"
                     required
                   />
                 </div>
-                <Button type="submit" className="w-full">
+                <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700">
                   Login
                 </Button>
               </form>
