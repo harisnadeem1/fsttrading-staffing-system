@@ -183,7 +183,7 @@ const RequestStaff = () => {
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <Label htmlFor="email">{t.email} *</Label>
+                      <Label htmlFor="email">Email *</Label>
                       <Input 
                         id="email" 
                         name="email" 
