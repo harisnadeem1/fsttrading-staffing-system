@@ -58,8 +58,8 @@ const Jobs = () => {
 
   const filteredJobs = useMemo(() => {
     return allJobs.filter(job => {
-      const keywordMatch = job.title.toLowerCase().includes(filters.keyword.toLowerCase()) || 
-                          (job.description && job.description.toLowerCase().includes(filters.keyword.toLowerCase()));
+      const keywordMatch = job.title.toLowerCase().includes(filters.keyword.toLowerCase()) ||
+        (job.description && job.description.toLowerCase().includes(filters.keyword.toLowerCase()));
       const locationMatch = filters.location === 'all' || job.location === filters.location;
       const typeMatch = filters.types.length === 0 || filters.types.includes(job.job_type);
       return keywordMatch && locationMatch && typeMatch;
@@ -112,78 +112,78 @@ const Jobs = () => {
 
       <div className="min-h-screen bg-gray-50">
         {/* Hero Header Section */}
-<section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-12 lg:py-16">
-  <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-    <motion.h1 
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="text-3xl md:text-4xl font-bold text-gray-900 mb-3"
-    >
-      {t.jobListingsTitle}
-    </motion.h1>
-    <motion.p 
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="text-lg text-gray-600 max-w-3xl mx-auto"
-    >
-      {t.jobListingsSubtitle}
-    </motion.p>
-  </div>
-</section>
-
-{/* Modern Filter Section */}
-<section className="py-6 bg-white shadow-sm">
-  <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-    {/* Search and Location */}
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-      <div className="relative">
-        <Input 
-          type="text" 
-          placeholder={t.searchPlaceholder}
-          className="pl-12 h-12 text-base bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 transition-all"
-          value={filters.keyword}
-          onChange={(e) => handleFilterChange('keyword', e.target.value)}
-        />
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-      </div>
-      
-      <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value)}>
-        <SelectTrigger className="h-12 text-base bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500">
-          <SelectValue placeholder={t.location} />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">{t.allLocations}</SelectItem>
-          {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
-        </SelectContent>
-      </Select>
-    </div>
-
-    {/* Job Types Filter */}
-    <div className="bg-gray-50 rounded-lg p-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <span className="text-sm font-semibold text-gray-700">{t.jobType}:</span>
-        {jobTypes.map(type => (
-          <div key={type.id} className="flex items-center space-x-2 bg-white rounded-full px-3 py-1.5 shadow-sm hover:shadow-md transition-shadow">
-            <Checkbox 
-              id={type.id} 
-              checked={filters.types.includes(type.id)}
-              onCheckedChange={() => handleTypeChange(type.id)}
-              className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
-            />
-            <Label 
-              htmlFor={type.id} 
-              className="text-sm font-medium text-gray-700 cursor-pointer"
+        <section className="bg-gradient-to-br from-blue-50 to-indigo-100 py-12 lg:py-16">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-3xl md:text-4xl font-bold text-gray-900 mb-3"
             >
-              {type.label}
-            </Label>
+              {t.jobListingsTitle}
+            </motion.h1>
+            <motion.p
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-lg text-gray-600 max-w-3xl mx-auto"
+            >
+              {t.jobListingsSubtitle}
+            </motion.p>
           </div>
-        ))}
-      </div>
-    </div>
-  </div>
-</section>
+        </section>
+
+        {/* Modern Filter Section */}
+        <section className="py-6 bg-white shadow-sm">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            {/* Search and Location */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder={t.searchPlaceholder}
+                  className="pl-12 h-12 text-base bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500 transition-all"
+                  value={filters.keyword}
+                  onChange={(e) => handleFilterChange('keyword', e.target.value)}
+                />
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+              </div>
+
+              <Select value={filters.location} onValueChange={(value) => handleFilterChange('location', value)}>
+                <SelectTrigger className="h-12 text-base bg-gray-50 border-gray-200 focus:bg-white focus:border-blue-500">
+                  <SelectValue placeholder={t.location} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t.allLocations}</SelectItem>
+                  {locations.map(loc => <SelectItem key={loc} value={loc}>{loc}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Job Types Filter */}
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-sm font-semibold text-gray-700">{t.jobType}:</span>
+                {jobTypes.map(type => (
+                  <div key={type.id} className="flex items-center space-x-2 bg-white rounded-full px-3 py-1.5 shadow-sm hover:shadow-md transition-shadow">
+                    <Checkbox
+                      id={type.id}
+                      checked={filters.types.includes(type.id)}
+                      onCheckedChange={() => handleTypeChange(type.id)}
+                      className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
+                    />
+                    <Label
+                      htmlFor={type.id}
+                      className="text-sm font-medium text-gray-700 cursor-pointer"
+                    >
+                      {type.label}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
 
         <section className="py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -238,8 +238,8 @@ const Jobs = () => {
               </>
             ) : (
               <div className="text-center py-16">
-                  <h2 className="text-2xl font-semibold mb-2">{t.jobListingsNotFound}</h2>
-                  <p className="text-gray-500">Try adjusting your search filters to find what you're looking for.</p>
+                <h2 className="text-2xl font-semibold mb-2">{t.jobListingsNotFound}</h2>
+                <p className="text-gray-500">Try adjusting your search filters to find what you're looking for.</p>
               </div>
             )}
           </div>

@@ -3,7 +3,7 @@ export const commonTranslations = {
   en: {
     // Company Info
     companyName: 'FST Trading',
-    email: 'FSTtradingg@gmail.com',
+    email: 'administrator@fsttrading.nl',
     phone: '+31 6 12502897',
     address: 'Kweekhoven 14, 1068ZT Amsterdam, Netherlands',
     kvk: 'KVK: 96650370',
@@ -50,7 +50,7 @@ export const commonTranslations = {
   nl: {
     // Company Info
     companyName: 'FST Trading',
-    email: 'FSTtradingg@gmail.com',
+    email: 'administrator@fsttrading.nl',
     phone: '+31 6 12502897',
     address: 'Kweekhoven 14, 1068ZT Amsterdam, Nederland',
     kvk: 'KVK: 96650370',

@@ -107,10 +107,7 @@ const Home = () => {
             <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} viewport={{ once: true }}>
               <h2 className="text-3xl font-bold text-gray-900 mb-4">{t.aboutUsTitle}</h2>
               <p className="text-gray-600 mb-4">{t.aboutUsText}</p>
-              {/* <div className="text-sm text-gray-500">
-                <p><strong>Address:</strong> {t.address}</p>
-                <p><strong>{t.kvk}</strong></p>
-              </div> */}
+
             </motion.div>
             <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.7 }} viewport={{ once: true }} className="bg-blue-800 text-white p-8 rounded-lg shadow-lg">
               <h2 className="text-3xl font-bold mb-4">{t.ourVisionTitle}</h2>

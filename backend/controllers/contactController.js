@@ -21,8 +21,6 @@ exports.submitContactForm = async (req, res) => {
 };
 
 
-
-
 // Get all contacts
 exports.getAllContacts = async (req, res) => {
   try {
